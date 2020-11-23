@@ -53,6 +53,24 @@ body {
   margin: 30px auto;
 }
 
+.logs-container {
+  margin: 0 auto;
+  padding: 20px 10px;
+  max-width: 600px;
+  border-radius: 100% 100% 70% 70% / 20% 20% 20% 20%;
+  background: rgba(245, 245, 245, 0.3);
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+#logs {
+  padding: 10px;
+  height: 120px;
+  overflow: auto;
+}
+
 .arrow {
   position: absolute;
   left: 0;
