@@ -9,26 +9,30 @@ const character = {
   name: 'Picachu',
   defaultHP: 100,
   damageHP: 100,
+  totalActions: 6,
   elHP: $getElemById('health-character'),
   elProgressbar: $getElemById('progressbar-character'),
   elKick: $getElemById('btn-kick-character'),
-  changeHP: changeHP,
-  renderHP: renderHP,
-  renderHPLife: renderHPLife,
-  renderProgressbar: renderProgressbar,
+  actionsCounter,
+  changeHP,
+  renderHP,
+  renderHPLife,
+  renderProgressbar,
 };
 
 const enemy = {
   name: 'Charmander',
   defaultHP: 200,
   damageHP: 200,
+  totalActions: 8,
   elHP: $getElemById('health-enemy'),
   elProgressbar: $getElemById('progressbar-enemy'),
   elKick: $getElemById('btn-kick-enemy'),
-  changeHP: changeHP,
-  renderHP: renderHP,
-  renderHPLife: renderHPLife,
-  renderProgressbar: renderProgressbar,
+  actionsCounter,
+  changeHP,
+  renderHP,
+  renderHPLife,
+  renderProgressbar,
 };
 
 function renderHPLife() {
@@ -53,7 +57,6 @@ function changeHP(count) {
       : generateLog(this, enemy, count);
 
   $logs.insertBefore(log, $logs.children[0]);
-  console.log(log);
 
   if (this.damageHP <= 0) {
     this.damageHP = 0;
@@ -64,11 +67,30 @@ function changeHP(count) {
   this.renderHP();
 }
 
-function random(num) {
-  return Math.ceil(Math.random() * num);
+// Функция подсчета ходов через замыкание
+function actionsCounter() {
+  let currentActions = 0;
+  return () => {
+    currentActions += 1;
+    console.log(
+      `Ходов осталось: ${
+        this.totalActions - currentActions
+      }, ${currentActions}/${this.totalActions} ходов.`
+    );
+
+    if (currentActions === this.totalActions) {
+      this.elKick.disabled = 'true';
+      console.log(`Ходы закончились`);
+      return;
+    }
+  };
 }
 
-function generateLog(firstPerson, secondPerson, damage) {
+const random = (num) => {
+  return Math.ceil(Math.random() * num);
+};
+
+const generateLog = (firstPerson, secondPerson, damage) => {
   const logs = [
     `${firstPerson.name} вспомнил что-то важное, но неожиданно ${secondPerson.name}, не помня себя от испуга, ударил в предплечье врага. -${damage} [${firstPerson.damageHP}/100]`,
     `${firstPerson.name} поперхнулся, и за это ${secondPerson.name} с испугу приложил прямой удар коленом в лоб врага. -${damage} [${firstPerson.damageHP}/100]`,
@@ -86,21 +108,27 @@ function generateLog(firstPerson, secondPerson, damage) {
   $p.innerText = logs[random(logs.length - 1)];
 
   return $p;
-}
+};
 
-function init() {
+const init = () => {
   console.log('Start Game!');
 
   character.renderHP();
   enemy.renderHP();
-}
+};
+
+// Для подсчета ходов через замыкание, их 2 потому что у каждого персонажа свое кол-во ходов. Возможно это можно куда-то перенести, пока не догодался.
+const characterActionsCounter = character.actionsCounter();
+const enemyActionsCounter = enemy.actionsCounter();
 
 init();
 
-$control.addEventListener('click', function (event) {
+$control.addEventListener('click', (event) => {
   if (event.target.id === 'btn-kick-character') {
-    character.changeHP(random(20));
-  } else if (event.target.id === 'btn-kick-enemy') {
     enemy.changeHP(random(20));
+    characterActionsCounter();
+  } else if (event.target.id === 'btn-kick-enemy') {
+    character.changeHP(random(20));
+    enemyActionsCounter();
   }
 });
