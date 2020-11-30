@@ -15,11 +15,13 @@ class Game {
   constructor() {
     this.startGame();
   }
+
   deleteButtons = () => {
     const $allButtons = $getElemsBySelector('.control .button');
     $allButtons.forEach(($item) => $item.remove());
   };
-  rednerAttacks = (attacker, target) => {
+
+  renderAttack = (attacker, target) => {
     attacker.attacks.forEach((item) => {
       const $btn = renderButton(item.name);
       const $btnCount = countBtn(item.maxCount, $btn);
@@ -38,25 +40,38 @@ class Game {
       $control.appendChild($btn);
     });
   };
-  startGame = () => {
+
+  getPokemon = async () => {
+    const response = await fetch(
+      'https://reactmarathon-api.netlify.app/api/pokemons?random=true'
+    );
+    const data = await response.json();
+    return data;
+  };
+
+  startGame = async () => {
     this.deleteButtons();
 
     const player1 = new Pokemon({
-      ...pokemons[random(pokemons.length - 1)],
+      ...(await this.getPokemon()),
       selector: 'player1',
     });
 
     const player2 = new Pokemon({
-      ...pokemons[random(pokemons.length - 1)],
+      ...(await this.getPokemon()),
       selector: 'player2',
     });
 
-    this.rednerAttacks(player1, player2);
-    this.rednerAttacks(player2, player1);
+    console.log(player1, player2);
+
+    this.renderAttack(player1, player2);
+    this.renderAttack(player2, player1);
   };
+
   resetGame = () => {
     this.startGame();
   };
+
   endGame = () => {
     this.deleteButtons();
 
