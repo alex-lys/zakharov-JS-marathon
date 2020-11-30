@@ -1,11 +1,8 @@
 import Game from './game.js';
-import { $getElemById } from './utils.js';
+import { $getElemById, renderButton } from './utils.js';
 
 const $control = $getElemById('control');
-
-const $btn = document.createElement('button');
-$btn.classList.add('button');
-$btn.innerText = 'Start Game';
+const $btn = renderButton('Start Game');
 
 $btn.addEventListener('click', () => {
   const newGame = new Game();
