@@ -7,6 +7,14 @@ const random = (max, min = 0) => {
   return Math.floor(Math.random() * num) + min;
 };
 
+const renderButton = (text) => {
+  const $btn = document.createElement('button');
+  $btn.classList.add('button');
+  $btn.innerText = text;
+
+  return $btn;
+};
+
 const countBtn = (count = 6, el) => {
   const innerText = el.innerText;
   el.innerText = `${innerText} (${count})`;
@@ -27,6 +35,7 @@ export {
   $getElemById,
   $getElemBySelector,
   $getElemsBySelector,
+  renderButton,
   countBtn,
   random,
 };

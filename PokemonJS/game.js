@@ -1,6 +1,7 @@
 import {
   $getElemById,
   $getElemsBySelector,
+  renderButton,
   countBtn,
   random,
 } from './utils.js';
@@ -14,9 +15,31 @@ class Game {
   constructor() {
     this.startGame();
   }
-  startGame = () => {
+  deleteButtons = () => {
     const $allButtons = $getElemsBySelector('.control .button');
     $allButtons.forEach(($item) => $item.remove());
+  };
+  rednerAttacks = (attacker, target) => {
+    attacker.attacks.forEach((item) => {
+      const $btn = renderButton(item.name);
+      const $btnCount = countBtn(item.maxCount, $btn);
+
+      $btn.addEventListener('click', () => {
+        target.changeHP(random(item.maxDamage, item.minDamage), (count) => {
+          generateLog(target, attacker, count);
+        });
+        if (target.hp.current === 0) {
+          this.endGame();
+        }
+
+        $btnCount();
+      });
+
+      $control.appendChild($btn);
+    });
+  };
+  startGame = () => {
+    this.deleteButtons();
 
     const player1 = new Pokemon({
       ...pokemons[random(pokemons.length - 1)],
@@ -28,65 +51,17 @@ class Game {
       selector: 'player2',
     });
 
-    player1.attacks.forEach((item) => {
-      const $btn = document.createElement('button');
-      $btn.classList.add('button');
-      $btn.innerText = item.name;
-
-      const $btnCount = countBtn(item.maxCount, $btn);
-
-      $btn.addEventListener('click', () => {
-        player2.changeHP(
-          random(item.maxDamage, item.minDamage),
-          function (count) {
-            console.log(this);
-            generateLog(player2, player1, count);
-          }
-        );
-        if (player2.hp.current === 0) {
-          this.endGame();
-        }
-
-        $btnCount();
-      });
-
-      $control.appendChild($btn);
-    });
-
-    player2.attacks.forEach((item) => {
-      const $btn = document.createElement('button');
-      $btn.classList.add('button');
-      $btn.innerText = item.name;
-
-      const $btnCount = countBtn(item.maxCount, $btn);
-
-      $btn.addEventListener('click', () => {
-        player1.changeHP(
-          random(item.maxDamage, item.minDamage),
-          function (count) {
-            generateLog(player1, player2, count);
-          }
-        );
-        if (player1.hp.current === 0) {
-          this.endGame();
-        }
-
-        $btnCount();
-      });
-
-      $control.appendChild($btn);
-    });
+    this.rednerAttacks(player1, player2);
+    this.rednerAttacks(player2, player1);
   };
   resetGame = () => {
     this.startGame();
   };
   endGame = () => {
-    const $allButtons = $getElemsBySelector('.control .button');
-    $allButtons.forEach(($item) => $item.remove());
+    this.deleteButtons();
 
-    const $btn = document.createElement('button');
-    $btn.classList.add('button');
-    $btn.innerText = 'Reset Game';
+    const $btn = renderButton('Reset Game');
+
     $btn.addEventListener('click', () => {
       this.resetGame();
     });

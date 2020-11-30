@@ -32,9 +32,17 @@ class Pokemon extends Player {
   };
 
   renderProgressbar = () => {
-    this.elProgressbar.style.width = `${
-      this.hp.current / (this.hp.total / 100)
-    }%`;
+    let ProgressbarPercent = this.hp.current / (this.hp.total / 100);
+    this.elProgressbar.style.width = `${ProgressbarPercent}%`;
+
+    if (ProgressbarPercent > 20 && ProgressbarPercent < 50) {
+      this.elProgressbar.classList.add('low');
+    } else if (ProgressbarPercent < 20) {
+      this.elProgressbar.classList.add('critical');
+    } else {
+      this.elProgressbar.classList.remove('critical');
+      this.elProgressbar.classList.remove('low');
+    }
   };
 
   renderHP = () => {
@@ -47,8 +55,6 @@ class Pokemon extends Player {
 
     if (this.hp.current <= 0) {
       this.hp.current = 0;
-      console.log(`Покемон '${this.name}' проиграл`);
-      // this.elKick.disabled = 'true';
     }
 
     this.renderHP();
