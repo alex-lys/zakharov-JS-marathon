@@ -10,8 +10,9 @@ class Player {
 }
 
 class Pokemon extends Player {
-  constructor({ name, hp, img, attacks, selector }) {
+  constructor({ id, name, hp, img, attacks, selector }) {
     super(selector);
+    this.id = id;
     this.name = name;
     this.hp = {
       current: hp,

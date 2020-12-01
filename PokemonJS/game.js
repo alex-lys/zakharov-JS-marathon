@@ -6,7 +6,6 @@ import {
   random,
 } from './utils.js';
 import { generateLog } from './logs.js';
-import { pokemons } from './pokemons.js';
 import Pokemon from './pokemon.js';
 
 const $control = $getElemById('control');
@@ -16,18 +15,35 @@ class Game {
     this.startGame();
   }
 
+  getPokemon = async () => {
+    const response = await fetch(
+      'https://reactmarathon-api.netlify.app/api/pokemons?random=true'
+    );
+    const data = await response.json();
+    return data;
+  };
+
+  getFight = async (attacker, attack, target) => {
+    const response = await fetch(
+      `https://reactmarathon-api.netlify.app/api/fight?player1id=${attacker.id}&attackId=${attack.id}&player2id=${target.id}`
+    );
+    const data = await response.json();
+    return data;
+  };
+
   deleteButtons = () => {
     const $allButtons = $getElemsBySelector('.control .button');
     $allButtons.forEach(($item) => $item.remove());
   };
 
-  renderAttack = (attacker, target) => {
+  renderAttacks = (attacker, target) => {
     attacker.attacks.forEach((item) => {
       const $btn = renderButton(item.name);
       const $btnCount = countBtn(item.maxCount, $btn);
 
-      $btn.addEventListener('click', () => {
-        target.changeHP(random(item.maxDamage, item.minDamage), (count) => {
+      $btn.addEventListener('click', async () => {
+        const fight = await this.getFight(attacker, item, target);
+        target.changeHP(fight.kick.player2, (count) => {
           generateLog(target, attacker, count);
         });
         if (target.hp.current === 0) {
@@ -39,14 +55,6 @@ class Game {
 
       $control.appendChild($btn);
     });
-  };
-
-  getPokemon = async () => {
-    const response = await fetch(
-      'https://reactmarathon-api.netlify.app/api/pokemons?random=true'
-    );
-    const data = await response.json();
-    return data;
   };
 
   startGame = async () => {
@@ -62,10 +70,8 @@ class Game {
       selector: 'player2',
     });
 
-    console.log(player1, player2);
-
-    this.renderAttack(player1, player2);
-    this.renderAttack(player2, player1);
+    this.renderAttacks(player1, player2);
+    this.renderAttacks(player2, player1);
   };
 
   resetGame = () => {
