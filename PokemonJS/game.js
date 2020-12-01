@@ -3,7 +3,6 @@ import {
   $getElemsBySelector,
   renderButton,
   countBtn,
-  random,
 } from './utils.js';
 import { generateLog } from './logs.js';
 import Pokemon from './pokemon.js';
@@ -38,15 +37,22 @@ class Game {
 
   renderAttacks = (attacker, target) => {
     attacker.attacks.forEach((item) => {
-      const $btn = renderButton(item.name);
+      const $btn = renderButton(
+        `${item.name} [${item.minDamage} - ${item.maxDamage}]`
+      );
       const $btnCount = countBtn(item.maxCount, $btn);
 
       $btn.addEventListener('click', async () => {
         const fight = await this.getFight(attacker, item, target);
+
         target.changeHP(fight.kick.player2, (count) => {
           generateLog(target, attacker, count);
         });
-        if (target.hp.current === 0) {
+        attacker.changeHP(fight.kick.player1, (count) => {
+          generateLog(attacker, target, count);
+        });
+
+        if (target.hp.current === 0 || attacker.hp.current === 0) {
           this.endGame();
         }
 
@@ -71,7 +77,6 @@ class Game {
     });
 
     this.renderAttacks(player1, player2);
-    this.renderAttacks(player2, player1);
   };
 
   resetGame = () => {
