@@ -3,10 +3,8 @@ import {
   $getElemsBySelector,
   renderButton,
   countBtn,
-  random,
 } from './utils.js';
 import { generateLog } from './logs.js';
-import { pokemons } from './pokemons.js';
 import Pokemon from './pokemon.js';
 
 const $control = $getElemById('control');
@@ -15,20 +13,46 @@ class Game {
   constructor() {
     this.startGame();
   }
+
+  getPokemon = async () => {
+    const response = await fetch(
+      'https://reactmarathon-api.netlify.app/api/pokemons?random=true'
+    );
+    const data = await response.json();
+    return data;
+  };
+
+  getFight = async (attacker, attack, target) => {
+    const response = await fetch(
+      `https://reactmarathon-api.netlify.app/api/fight?player1id=${attacker.id}&attackId=${attack.id}&player2id=${target.id}`
+    );
+    const data = await response.json();
+    return data;
+  };
+
   deleteButtons = () => {
     const $allButtons = $getElemsBySelector('.control .button');
     $allButtons.forEach(($item) => $item.remove());
   };
-  rednerAttacks = (attacker, target) => {
+
+  renderAttacks = (attacker, target) => {
     attacker.attacks.forEach((item) => {
-      const $btn = renderButton(item.name);
+      const $btn = renderButton(
+        `${item.name} [${item.minDamage} - ${item.maxDamage}]`
+      );
       const $btnCount = countBtn(item.maxCount, $btn);
 
-      $btn.addEventListener('click', () => {
-        target.changeHP(random(item.maxDamage, item.minDamage), (count) => {
+      $btn.addEventListener('click', async () => {
+        const fight = await this.getFight(attacker, item, target);
+
+        target.changeHP(fight.kick.player2, (count) => {
           generateLog(target, attacker, count);
         });
-        if (target.hp.current === 0) {
+        attacker.changeHP(fight.kick.player1, (count) => {
+          generateLog(attacker, target, count);
+        });
+
+        if (target.hp.current === 0 || attacker.hp.current === 0) {
           this.endGame();
         }
 
@@ -38,25 +62,27 @@ class Game {
       $control.appendChild($btn);
     });
   };
-  startGame = () => {
+
+  startGame = async () => {
     this.deleteButtons();
 
     const player1 = new Pokemon({
-      ...pokemons[random(pokemons.length - 1)],
+      ...(await this.getPokemon()),
       selector: 'player1',
     });
 
     const player2 = new Pokemon({
-      ...pokemons[random(pokemons.length - 1)],
+      ...(await this.getPokemon()),
       selector: 'player2',
     });
 
-    this.rednerAttacks(player1, player2);
-    this.rednerAttacks(player2, player1);
+    this.renderAttacks(player1, player2);
   };
+
   resetGame = () => {
     this.startGame();
   };
+
   endGame = () => {
     this.deleteButtons();
 

@@ -316,7 +316,7 @@ body {
   outline: none !important;
   cursor: pointer;
   font-size: 18px;
-  max-width: 200px;
+  max-width: 270px;
   width: 100%;
 }
 .button:after {
