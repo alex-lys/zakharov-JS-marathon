@@ -66,17 +66,17 @@ class Game {
   startGame = async () => {
     this.deleteButtons();
 
-    const player1 = new Pokemon({
+    const player = new Pokemon({
       ...(await this.getPokemon()),
       selector: 'player1',
     });
 
-    const player2 = new Pokemon({
+    const enemy = new Pokemon({
       ...(await this.getPokemon()),
       selector: 'player2',
     });
 
-    this.renderAttacks(player1, player2);
+    this.renderAttacks(player, enemy);
   };
 
   resetGame = () => {
